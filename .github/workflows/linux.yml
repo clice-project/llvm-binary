@@ -1,0 +1,42 @@
+name: linux
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        build_type: [debug, release]
+
+    concurrency:
+      group: ${{ github.ref }}-${{ github.base_ref }}-${{ github.head_ref }}-linux-${{ matrix.build_type }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Setup llvm
+        run: |
+          wget https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          sudo ./llvm.sh 20 all
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Package
+        run: |
+          xmake config --yes --verbose --plat=linux --arch=x86_64 --toolchain=clang-20 --mode=${{ matrix.build_type }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: x86_64-linux-gnu-${{ matrix.build_type }}
+          path: build/package
+          if-no-files-found: error

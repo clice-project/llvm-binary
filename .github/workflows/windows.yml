@@ -1,0 +1,41 @@
+name: windows
+
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        build_type: [debug, release]
+
+    concurrency:
+      group: ${{ github.ref }}-${{ github.base_ref }}-${{ github.head_ref }}-windows-${{ matrix.build_type }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Setup llvm
+        uses: MinoruSekine/setup-scoop@v4.0.1
+        with:
+          buckets: main
+          apps: llvm
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: latest
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Package
+        run: |
+          xmake config --yes --verbose --plat=windows --arch=x64 --mode=${{ matrix.build_type }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: x64-windows-msvc-${{ matrix.build_type }}
+          path: build/package
+          if-no-files-found: error
