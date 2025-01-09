@@ -60,7 +60,7 @@ package("llvm")
             table.insert(configs, "-DCMAKE_CXX_COMPILER=clang++")
         end
         if package:is_debug() then
-            table.insert(configs, [[-DLLVM_ENABLE_PROJECTS="clang;compiler-rt"]])
+            table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang;compiler-rt")
         else
             table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang")
         end
@@ -90,9 +90,7 @@ package("llvm")
         os.cd("llvm")
         import("package.tools.cmake").install(package, configs, opt)
 
-        os.tryrm(package:installdir("bin"))
-
-        os.vcp("../clang/lib/Headers", package:installdir("include"))
+        os.vcp("../clang/lib/Headers", package:installdir("include/clang"))
 
         local clang_include_dir = "../clang/lib/Sema"
         local install_clang_include_dir = package:installdir("include/clang/Sema")
