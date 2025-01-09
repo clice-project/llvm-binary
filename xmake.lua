@@ -53,7 +53,7 @@ package("llvm")
             "-DLLVM_TARGETS_TO_BUILD=X86",
         }
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
-        table.insert(configs, "-DLLVM_USE_SANITIZERS=" .. (package:is_debug() and "Debug" or "Release"))
+        table.insert(configs, "-DLLVM_USE_SANITIZERS=" .. (package:is_debug() and "Address" or ""))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         if package:is_plat("windows") then
             table.insert(configs, "-DCMAKE_C_COMPILER=clang")
