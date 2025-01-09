@@ -3,7 +3,7 @@ set_policy("compatibility.version", "3.0")
 add_requires("llvm", {
     system = false,
     configs = {
-        asan = is_mode("debug"),
+        debug = is_mode("debug"),
         shared = is_mode("debug") and not is_plat("windows"),
     },
 })
@@ -44,18 +44,25 @@ package("llvm")
 
             "-DLLVM_ENABLE_ZLIB=OFF",
             "-DLLVM_ENABLE_ZSTD=OFF",
+            "-DLLVM_ENABLE_LIBXML2=OFF",
 
             "-DLLVM_LINK_LLVM_DYLIB=OFF",
             "-DLLVM_ENABLE_RTTI=OFF",
 
-            "-DLLVM_ENABLE_PROJECTS=clang",
+            -- "-DLLVM_ENABLE_PROJECTS=clang",
             "-DLLVM_TARGETS_TO_BUILD=X86",
         }
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
+        table.insert(configs, "-DLLVM_USE_SANITIZERS=" .. (package:is_debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         if package:is_plat("windows") then
             table.insert(configs, "-DCMAKE_C_COMPILER=clang")
             table.insert(configs, "-DCMAKE_CXX_COMPILER=clang++")
+        end
+        if package:is_debug() then
+            table.insert(configs, [[-DLLVM_ENABLE_PROJECTS="clang;compiler-rt"]])
+        else
+            table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang")
         end
 
         local opt = {}
