@@ -25,10 +25,6 @@ package("llvm")
         add_syslinks("version", "ntdll")
     end
 
-    on_load(function (package)
-        package:set("installdir", path.join(os.scriptdir(), "build/package"))
-    end)
-
     on_install(function (package)
         -- Some tool can't disable by `CLANG_BUILD_TOOLS`
         io.replace("clang/CMakeLists.txt", "add_subdirectory(tools)", "", {plain = true})
@@ -107,4 +103,30 @@ package("llvm")
         os.vcp(path.join(clang_include_dir, "CoroutineStmtBuilder.h"), install_clang_include_dir)
         os.vcp(path.join(clang_include_dir, "TypeLocBuilder.h"), install_clang_include_dir)
         os.vcp(path.join(clang_include_dir, "TreeTransform.h"), install_clang_include_dir)
+
+        local abi
+        local format
+        if package:is_plat("windows") then
+            abi = "msvc"
+            format = ".7z"
+        elseif package:is_plat("linux") then
+            abi = "gnu"
+            format = ".tar.xz"
+        end
+        -- arch-plat-abi-mode
+        local archive_name = table.concat({
+            package:arch(),
+            package:plat(),
+            abi,
+            package:is_debug() and "debug" or "release",
+        }, "-")
+
+        local archive_file = path.join(os.scriptdir(), "build/package", archive_name .. format)
+
+        local opt = {}
+        opt.recurse = true
+        opt.compress = "best"
+        import("utils.archive").archive(archive_file, package:installdir(), opt)
+
+        print(hash.sha256(archive_file))
     end)

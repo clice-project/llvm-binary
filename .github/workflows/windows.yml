@@ -1,5 +1,8 @@
 name: windows
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ main ]
@@ -21,14 +24,23 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # WyriHaximus/github-action-get-previous-tag@master need it
+          fetch-depth: 0
 
       - name: Package
         run: |
           xmake config --yes --verbose --plat=windows --arch=x64 --mode=release
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Get Previous tag
+        id: previous_tag
+        uses: WyriHaximus/github-action-get-previous-tag@master
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
         with:
-          name: x64-windows-msvc-release
-          path: build/package
-          if-no-files-found: error
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/package/x64-windows-msvc-release.7z
+          asset_name: build/package/x64-windows-msvc-release.7z
+          tag: ${{ steps.previous_tag.outputs.tag }}
+          overwrite: true

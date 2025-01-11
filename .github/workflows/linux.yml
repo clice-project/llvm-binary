@@ -1,5 +1,8 @@
 name: linux
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ main ]
@@ -29,14 +32,23 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # WyriHaximus/github-action-get-previous-tag@master need it
+          fetch-depth: 0
 
       - name: Package
         run: |
           xmake config --yes --verbose --plat=linux --arch=x86_64 --toolchain=clang-20 --mode=${{ matrix.build_type }}
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Get Previous tag
+        id: previous_tag
+        uses: WyriHaximus/github-action-get-previous-tag@master
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
         with:
-          name: x86_64-linux-gnu-${{ matrix.build_type }}
-          path: build/package
-          if-no-files-found: error
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/package/x86_64-linux-gnu-${{ matrix.build_type }}.tar.xz
+          asset_name: build/package/x86_64-linux-gnu-${{ matrix.build_type }}.tar.xz
+          tag: ${{ steps.previous_tag.outputs.tag }}
+          overwrite: true
