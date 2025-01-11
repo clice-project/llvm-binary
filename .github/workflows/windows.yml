@@ -6,13 +6,6 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        build_type: [debug, release]
-
-    concurrency:
-      group: ${{ github.ref }}-${{ github.base_ref }}-${{ github.head_ref }}-windows-${{ matrix.build_type }}
-      cancel-in-progress: true
 
     steps:
       - name: Setup llvm
@@ -31,11 +24,11 @@ jobs:
 
       - name: Package
         run: |
-          xmake config --yes --verbose --plat=windows --arch=x64 --mode=${{ matrix.build_type }}
+          xmake config --yes --verbose --plat=windows --arch=x64 --mode=release
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: x64-windows-msvc-${{ matrix.build_type }}
+          name: x64-windows-msvc-release
           path: build/package
           if-no-files-found: error

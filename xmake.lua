@@ -16,6 +16,7 @@ package("llvm")
 
     if is_plat("windows") then
         add_configs("runtimes", {description = "Set compiler runtimes.", default = "MD", readonly = true})
+        add_configs("debug", {description = "Enable debug symbols.", default = false, type = "boolean", readonly = true})
     end
 
     add_deps("cmake", "ninja", "python 3.x", {kind = "binary"})
@@ -53,14 +54,15 @@ package("llvm")
             "-DLLVM_TARGETS_TO_BUILD=X86",
         }
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
-        table.insert(configs, "-DLLVM_USE_SANITIZERS=" .. (package:is_debug() and "Address" or ""))
+        table.insert(configs, "-DLLVM_USE_SANITIZER=" .. (package:is_debug() and "Address" or ""))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         if package:is_plat("windows") then
-            table.insert(configs, "-DCMAKE_C_COMPILER=clang")
-            table.insert(configs, "-DCMAKE_CXX_COMPILER=clang++")
+            table.insert(configs, "-DCMAKE_C_COMPILER=clang-cl")
+            table.insert(configs, "-DCMAKE_CXX_COMPILER=clang-cl")
         end
         if package:is_debug() then
-            table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang;compiler-rt")
+            table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang")
+            table.insert(configs, "-DLLVM_ENABLE_RUNTIMES=compiler-rt")
         else
             table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang")
         end
@@ -86,6 +88,14 @@ package("llvm")
             "clangToolingInclusionsStdlib",
             "clangToolingSyntax",
         }
+
+        if package:is_plat("windows") and package:is_debug() then
+            -- host tool require asan dll
+            local envs = import("package.tools.cmake").buildenvs(package)
+            local cl = assert(import("lib.detect.find_tool")("cl", {envs = envs}), "cl not found!")
+            envs.PATH = path.directory(cl.program) .. path.envsep() .. envs.PATH
+            opt.envs = envs
+        end
 
         os.cd("llvm")
         import("package.tools.cmake").install(package, configs, opt)
