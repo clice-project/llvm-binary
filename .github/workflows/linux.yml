@@ -49,6 +49,6 @@ jobs:
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: build/package/x86_64-linux-gnu-${{ matrix.build_type }}.tar.xz
-          asset_name: build/package/x86_64-linux-gnu-${{ matrix.build_type }}.tar.xz
+          asset_name: x86_64-linux-gnu-${{ matrix.build_type }}.tar.xz
           tag: ${{ steps.previous_tag.outputs.tag }}
           overwrite: true
