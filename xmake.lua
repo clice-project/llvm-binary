@@ -126,7 +126,8 @@ package("llvm")
         local opt = {}
         opt.recurse = true
         opt.compress = "best"
-        import("utils.archive").archive(archive_file, package:installdir(), opt)
+        opt.curdir = package:installdir()
+        import("utils.archive").archive(archive_file, "*", opt)
 
         print(hash.sha256(archive_file))
     end)
