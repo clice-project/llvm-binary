@@ -52,7 +52,7 @@ jobs:
           git clone --filter=tree:0 --no-checkout https://github.com/llvm/llvm-project.git llvm
           cd llvm
           git sparse-checkout init --cone
-          git sparse-checkout add llvm clang cmake
+          git sparse-checkout add llvm clang cmake compiler-rt
           git checkout fac46469977da9c4e9c6eeaac21103c971190577
           cd ..
 
