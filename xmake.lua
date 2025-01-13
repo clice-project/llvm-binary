@@ -129,8 +129,19 @@ package("llvm")
         local opt = {}
         opt.recurse = true
         opt.compress = "best"
-        opt.curdir = package:installdir()
-        import("utils.archive").archive(archive_file, "*", opt)
+
+        local archive_dirs
+        if package:is_plat("windows") then
+            archive_dirs = package:installdir()
+        elseif package:is_plat("linux") then
+            archive_dirs = {}
+            opt.curdir = package:installdir()
+
+            for _, dir in ipairs(os.dirs(path.join(opt.curdir, "*"))) do
+                table.insert(archive_dirs, path.filename(dir))
+            end
+        end
+        import("utils.archive").archive(archive_file, archive_dirs, opt)
 
         print(hash.sha256(archive_file))
     end)
