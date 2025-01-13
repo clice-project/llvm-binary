@@ -34,11 +34,12 @@ jobs:
         with:
           path: |
             ./llvm
-          key: llvm-${{ github.sha }}
+          key: llvm-windows-${{ github.sha }}
           restore-keys: |
-            llvm-
+            llvm-windows-
 
       - name: Checkout llvm
+        if: steps.cache-llvm.outputs.cache-hit != 'true'
         run: |
           git clone --filter=tree:0 --no-checkout https://github.com/llvm/llvm-project.git llvm
           cd llvm
