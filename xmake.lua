@@ -9,10 +9,12 @@ add_requires("llvm", {
 })
 
 package("llvm")
+    -- xmake unsupported sparse checkout now
+    set_sourcedir("llvm")
     -- switch to tarball when llvm 20 release
-    set_urls("https://github.com/llvm/llvm-project.git")
+    -- set_urls("https://github.com/llvm/llvm-project.git")
 
-    add_versions("20.0.0", "fac46469977da9c4e9c6eeaac21103c971190577") -- 2025.01.04
+    -- add_versions("20.0.0", "fac46469977da9c4e9c6eeaac21103c971190577") -- 2025.01.04
 
     if is_plat("windows") then
         add_configs("runtimes", {description = "Set compiler runtimes.", default = "MD", readonly = true})
@@ -64,6 +66,7 @@ package("llvm")
         end
 
         local opt = {}
+        opt.buildir = path.join(package:sourcedir(), "build")
         opt.target = {
             "LLVMSupport",
             "LLVMFrontendOpenMP",

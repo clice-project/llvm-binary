@@ -36,6 +36,25 @@ jobs:
           # WyriHaximus/github-action-get-previous-tag@master need it
           fetch-depth: 0
 
+      - name: Cache llvm
+        id: cache-llvm
+        uses: actions/cache@v4
+        with:
+          path: |
+            ./llvm
+          key: llvm-${{ github.sha }}
+          restore-keys: |
+            llvm-
+
+      - name: Checkout llvm
+        run: |
+          git clone --filter=tree:0 --no-checkout https://github.com/llvm/llvm-project.git llvm
+          cd llvm
+          git sparse-checkout init --cone
+          git sparse-checkout add llvm clang cmake
+          git checkout fac46469977da9c4e9c6eeaac21103c971190577
+          cd ..
+
       - name: Package
         run: |
           xmake config --yes --verbose --plat=linux --arch=x86_64 --toolchain=clang-20 --mode=${{ matrix.build_type }}
