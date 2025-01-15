@@ -40,14 +40,14 @@ jobs:
         id: cache-llvm
         uses: actions/cache@v4
         with:
-          path: |
-            ./llvm
+          path: ./llvm
           key: llvm-linux-${{ matrix.build_type }}-${{ github.sha }}
           restore-keys: |
             llvm-linux-${{ matrix.build_type }}-
 
       - name: Checkout llvm
         if: steps.cache-llvm.outputs.cache-hit != 'true'
+        continue-on-error: true
         run: |
           git clone --filter=tree:0 --no-checkout https://github.com/llvm/llvm-project.git llvm
           cd llvm
