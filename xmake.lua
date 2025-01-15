@@ -127,14 +127,14 @@ package("llvm")
         local opt = {}
         opt.recurse = true
         opt.compress = "best"
+        opt.curdir = package:installdir()
 
         local archive_dirs
         if package:is_plat("windows") then
-            archive_dirs = package:installdir()
+            archive_dirs = "*"
         elseif package:is_plat("linux") then
+            -- workaround for tar
             archive_dirs = {}
-            opt.curdir = package:installdir()
-
             for _, dir in ipairs(os.dirs(path.join(opt.curdir, "*"))) do
                 table.insert(archive_dirs, path.filename(dir))
             end
