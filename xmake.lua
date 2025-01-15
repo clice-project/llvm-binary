@@ -99,8 +99,6 @@ package("llvm")
         os.cd("llvm")
         import("package.tools.cmake").install(package, configs, opt)
 
-        os.vcp("../clang/lib/Headers", package:installdir("include/clang"))
-
         local clang_include_dir = "../clang/lib/Sema"
         local install_clang_include_dir = package:installdir("include/clang/Sema")
         os.vcp(path.join(clang_include_dir, "CoroutineStmtBuilder.h"), install_clang_include_dir)
