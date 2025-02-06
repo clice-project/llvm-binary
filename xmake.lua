@@ -86,8 +86,6 @@ package("llvm")
             "clangToolingInclusions",
             "clangToolingInclusionsStdlib",
             "clangToolingSyntax",
-            "clangTidy",
-            "clangTidyUtils",
         }
 
         if package:is_plat("windows") and package:is_debug() then
@@ -106,6 +104,13 @@ package("llvm")
         os.vcp(path.join(clang_include_dir, "CoroutineStmtBuilder.h"), install_clang_include_dir)
         os.vcp(path.join(clang_include_dir, "TypeLocBuilder.h"), install_clang_include_dir)
         os.vcp(path.join(clang_include_dir, "TreeTransform.h"), install_clang_include_dir)
+
+        os.cd("..")
+        opt.target = {
+            "clangTidy",
+            "clangTidyUtils",
+        }
+        import("package.tools.cmake").install(package, configs, opt)
 
         local abi
         local format
