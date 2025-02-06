@@ -59,10 +59,10 @@ package("llvm")
             table.insert(configs, "-DCMAKE_CXX_COMPILER=clang-cl")
         end
         if package:is_debug() then
-            table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang")
+            table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra")
             table.insert(configs, "-DLLVM_ENABLE_RUNTIMES=compiler-rt")
         else
-            table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang")
+            table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra")
         end
 
         local opt = {}
@@ -86,6 +86,9 @@ package("llvm")
             "clangToolingInclusions",
             "clangToolingInclusionsStdlib",
             "clangToolingSyntax",
+            "clangIncludeCleaner",
+            "clangTidy",
+            "clangTidyUtils",
         }
 
         if package:is_plat("windows") and package:is_debug() then
