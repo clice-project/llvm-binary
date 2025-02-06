@@ -29,7 +29,8 @@ package("llvm")
 
     on_install(function (package)
         -- Some tool can't disable by `CLANG_BUILD_TOOLS`
-        io.replace("clang/CMakeLists.txt", "add_subdirectory(tools)", "", {plain = true})
+        -- But we need clang-tools-extra
+        io.replace("clang/CMakeLists.txt", "add_subdirectory(tools)", "add_llvm_external_project(clang-tools-extra extra)", {plain = true})
 
         local configs = {
             "-DLLVM_INCLUDE_DOCS=OFF",
