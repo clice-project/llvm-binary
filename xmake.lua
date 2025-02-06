@@ -86,7 +86,6 @@ package("llvm")
             "clangToolingInclusions",
             "clangToolingInclusionsStdlib",
             "clangToolingSyntax",
-            "clangIncludeCleaner",
             "clangTidy",
             "clangTidyUtils",
         }
