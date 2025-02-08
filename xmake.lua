@@ -28,9 +28,9 @@ package("llvm")
     end
 
     on_install(function (package)
-        -- Some tool can't disable by `CLANG_BUILD_TOOLS`
-        -- But we need clang-tools-extra
-        io.replace("clang/CMakeLists.txt", "add_subdirectory(tools)", "add_llvm_external_project(clang-tools-extra extra)", {plain = true})
+        if not package:config("shared") then
+            package:add("defines", "CLANG_BUILD_STATIC")
+        end
 
         local configs = {
             "-DLLVM_INCLUDE_DOCS=OFF",
@@ -38,7 +38,7 @@ package("llvm")
             "-DLLVM_INCLUDE_EXAMPLES=OFF",
             "-DLLVM_INCLUDE_BENCHMARKS=OFF",
 
-            "-DCLANG_BUILD_TOOLS=OFF",
+            -- "-DCLANG_BUILD_TOOLS=OFF",
             "-DLLVM_BUILD_TOOLS=OFF",
             "-DLLVM_BUILD_UTILS=OFF",
 
@@ -101,6 +101,16 @@ package("llvm")
 
         os.cd("llvm")
         import("package.tools.cmake").install(package, configs, opt)
+
+        if package:is_plat("windows") then
+            for _, file in ipairs(os.files(package:installdir("bin/*"))) do
+                if not file:endswith(".dll") then
+                    os.rm(file)
+                end
+            end
+        elseif package:is_plat("linux") then
+            os.rm(package:installdir("bin/*"))
+        end
 
         local clang_include_dir = "../clang/lib/Sema"
         local install_clang_include_dir = package:installdir("include/clang/Sema")
