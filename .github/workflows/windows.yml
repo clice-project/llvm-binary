@@ -10,11 +10,11 @@ jobs:
       matrix:
         include:
           - build_type: release
+            runtimes: MD
             lto: "n"
-            runtimes: "MD"
           - build_type: release
+            runtimes: MT
             lto: "y"
-            runtimes: "MT"
 
     steps:
       - name: Setup llvm
@@ -26,7 +26,8 @@ jobs:
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: latest
+          xmake-version: branch@master
+          actions-cache-folder: '.xmake-cache'
 
       - name: Checkout repository
         uses: actions/checkout@v4
