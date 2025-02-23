@@ -1,8 +1,5 @@
 name: linux
 
-permissions:
-  contents: write
-
 on:
   push:
     branches: [ main ]
@@ -12,11 +9,13 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        build_type: [debug, release]
-
-    concurrency:
-      group: ${{ github.ref }}-${{ github.base_ref }}-${{ github.head_ref }}-linux-${{ matrix.build_type }}
-      cancel-in-progress: true
+        include:
+          - build_type: debug
+            lto: "n"
+          - build_type: release
+            lto: "n"
+          - build_type: release
+            lto: "y"
 
     steps:
       - name: Setup llvm
@@ -32,43 +31,13 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          # WyriHaximus/github-action-get-previous-tag@master need it
-          fetch-depth: 0
-
-      - name: Cache llvm
-        id: cache-llvm
-        uses: actions/cache@v4
-        with:
-          path: ./llvm
-          key: llvm-linux-${{ matrix.build_type }}-${{ github.sha }}
-          restore-keys: |
-            llvm-linux-${{ matrix.build_type }}-
-
-      - name: Checkout llvm
-        if: steps.cache-llvm.outputs.cache-hit != 'true'
-        continue-on-error: true
-        run: |
-          git clone --filter=tree:0 --no-checkout https://github.com/llvm/llvm-project.git llvm
-          cd llvm
-          git sparse-checkout init --cone
-          git sparse-checkout add llvm clang cmake compiler-rt runtimes clang-tools-extra
-          git checkout fac46469977da9c4e9c6eeaac21103c971190577
-          cd ..
 
       - name: Package
         run: |
-          xmake config --yes --verbose --plat=linux --arch=x86_64 --toolchain=clang-20 --mode=${{ matrix.build_type }}
+          xmake config --yes --verbose --toolchain=clang-20 --mode=${{ matrix.build_type }} --policies=build.optimization.lto:${{ matrix.lto }}
 
-      - name: Get Previous tag
-        id: previous_tag
-        uses: WyriHaximus/github-action-get-previous-tag@master
-
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/package/x86_64-linux-gnu-${{ matrix.build_type }}.tar.xz
-          asset_name: x86_64-linux-gnu-${{ matrix.build_type }}.tar.xz
-          tag: ${{ steps.previous_tag.outputs.tag }}
-          overwrite: true
+          name: build/package/*
+          path: artifacts/linux/

@@ -9,15 +9,21 @@ add_requires("llvm", {
 })
 
 package("llvm")
-    -- xmake unsupported sparse checkout now
-    set_sourcedir("llvm")
-    -- switch to tarball when llvm 20 release
-    -- set_urls("https://github.com/llvm/llvm-project.git")
+    -- Use tarball when llvm 20 release
+    set_urls("https://github.com/llvm/llvm-project.git", {
+        -- sparse checkout
+        includes = {
+            "cmake",
+            "llvm",
+            "clang",
+            "compiler-rt",
+            "runtimes",
+            "clang-tools-extra",
+    }})
 
-    -- add_versions("20.0.0", "fac46469977da9c4e9c6eeaac21103c971190577") -- 2025.01.04
+    add_versions("20.0.0", "fac46469977da9c4e9c6eeaac21103c971190577") -- 2025.01.04
 
     if is_plat("windows") then
-        add_configs("runtimes", {description = "Set compiler runtimes.", default = "MD", readonly = true})
         add_configs("debug", {description = "Enable debug symbols.", default = false, type = "boolean", readonly = true})
     end
 
@@ -55,6 +61,7 @@ package("llvm")
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
         table.insert(configs, "-DLLVM_USE_SANITIZER=" .. (package:is_debug() and "Address" or ""))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
+        table.insert(configs, "-DLLVM_ENABLE_LTO=" .. (package:config("lto") and "ON" or "OFF"))
         if package:is_plat("windows") then
             table.insert(configs, "-DCMAKE_C_COMPILER=clang-cl")
             table.insert(configs, "-DCMAKE_CXX_COMPILER=clang-cl")
@@ -91,14 +98,6 @@ package("llvm")
             "clangTidyUtils",
         }
 
-        if package:is_plat("windows") and package:is_debug() then
-            -- host tool require asan dll
-            local envs = import("package.tools.cmake").buildenvs(package)
-            local cl = assert(import("lib.detect.find_tool")("cl", {envs = envs}), "cl not found!")
-            envs.PATH = path.directory(cl.program) .. path.envsep() .. envs.PATH
-            opt.envs = envs
-        end
-
         os.cd("llvm")
         import("package.tools.cmake").install(package, configs, opt)
 
@@ -134,6 +133,10 @@ package("llvm")
             abi,
             package:is_debug() and "debug" or "release",
         }, "-")
+
+        if package:config("lto") then
+            archive_name = "-lto"
+        end
 
         local archive_file = path.join(os.scriptdir(), "build/package", archive_name .. format)
 

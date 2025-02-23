@@ -1,14 +1,20 @@
 name: windows
 
-permissions:
-  contents: write
-
 on:
   push:
     branches: [ main ]
 jobs:
   build:
     runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - build_type: release
+            lto: "n"
+            runtimes: "MD"
+          - build_type: release
+            lto: "y"
+            runtimes: "MT"
 
     steps:
       - name: Setup llvm
@@ -24,43 +30,13 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          # WyriHaximus/github-action-get-previous-tag@master need it
-          fetch-depth: 0
-
-      - name: Cache llvm
-        id: cache-llvm
-        uses: actions/cache@v4
-        with:
-          path: ./llvm
-          key: llvm-windows-${{ github.sha }}
-          restore-keys: |
-            llvm-windows-
-
-      - name: Checkout llvm
-        if: steps.cache-llvm.outputs.cache-hit != 'true'
-        continue-on-error: true
-        run: |
-          git clone --filter=tree:0 --no-checkout https://github.com/llvm/llvm-project.git llvm
-          cd llvm
-          git sparse-checkout init --cone
-          git sparse-checkout add llvm clang cmake clang-tools-extra
-          git checkout fac46469977da9c4e9c6eeaac21103c971190577
-          cd ..
 
       - name: Package
         run: |
-          xmake config --yes --verbose --plat=windows --arch=x64 --mode=release
+          xmake config --yes --verbose --runtimes=${{ matrix.runtimes }} --policies=build.optimization.lto:${{ matrix.lto }}
 
-      - name: Get Previous tag
-        id: previous_tag
-        uses: WyriHaximus/github-action-get-previous-tag@master
-
-      - name: Upload binaries to release
-        uses: svenstaro/upload-release-action@v2
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/package/x64-windows-msvc-release.7z
-          asset_name: x64-windows-msvc-release.7z
-          tag: ${{ steps.previous_tag.outputs.tag }}
-          overwrite: true
+          name: build/package/*
+          path: artifacts/windows/
