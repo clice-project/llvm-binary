@@ -24,14 +24,14 @@ jobs:
           chmod +x llvm.sh
           sudo ./llvm.sh 20 all
 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
           xmake-version: branch@master
           actions-cache-folder: '.xmake-cache'
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       - name: Package
         run: |
