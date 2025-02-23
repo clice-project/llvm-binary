@@ -8,18 +8,21 @@ add_requires("llvm", {
     },
 })
 
+local sparse_checkout_list = {
+    "cmake",
+    "llvm",
+    "clang",
+    "clang-tools-extra",
+}
+
+if is_mode("debug") then
+    table.insert(sparse_checkout_list, "runtimes")
+    table.insert(sparse_checkout_list, "clang-tools-extra")
+end
+
 package("llvm")
     -- Use tarball when llvm 20 release
-    set_urls("https://github.com/llvm/llvm-project.git", {
-        -- sparse checkout
-        includes = {
-            "cmake",
-            "llvm",
-            "clang",
-            "compiler-rt",
-            "runtimes",
-            "clang-tools-extra",
-    }})
+    set_urls("https://github.com/llvm/llvm-project.git", {includes = sparse_checkout_list})
 
     add_versions("20.0.0", "fac46469977da9c4e9c6eeaac21103c971190577") -- 2025.01.04
 
@@ -157,5 +160,7 @@ package("llvm")
         end
         import("utils.archive").archive(archive_file, archive_dirs, opt)
 
-        print(hash.sha256(archive_file))
+        local checksum = hash.sha256(archive_file)
+        print(checksum)
+        io.writefile("build/package/" .. archive_name .. ".txt", checksum)
     end)
