@@ -34,7 +34,7 @@ jobs:
 
       - name: Package
         run: |
-          xmake config --yes --verbose --runtimes=${{ matrix.runtimes }} --policies=build.optimization.lto:${{ matrix.lto }}
+          xmake config --yes --verbose --runtimes=${{ matrix.runtimes }} --lto=${{ matrix.lto }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

@@ -1,3 +1,4 @@
+option("lto", {default = false})
 set_policy("compatibility.version", "3.0")
 
 add_requires("llvm", {
@@ -41,6 +42,7 @@ package("llvm")
             package:add("defines", "CLANG_BUILD_STATIC")
         end
 
+        local is_lto = get_config("lto")
         local configs = {
             "-DLLVM_INCLUDE_DOCS=OFF",
             "-DLLVM_INCLUDE_TESTS=OFF",
@@ -64,7 +66,7 @@ package("llvm")
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
         table.insert(configs, "-DLLVM_USE_SANITIZER=" .. (package:is_debug() and "Address" or ""))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
-        table.insert(configs, "-DLLVM_ENABLE_LTO=" .. (package:config("lto") and "ON" or "OFF"))
+        table.insert(configs, "-DLLVM_ENABLE_LTO=" .. (is_lto and "ON" or "OFF"))
         if package:is_plat("windows") then
             table.insert(configs, "-DCMAKE_C_COMPILER=clang-cl")
             table.insert(configs, "-DCMAKE_CXX_COMPILER=clang-cl")
@@ -137,7 +139,7 @@ package("llvm")
             package:is_debug() and "debug" or "release",
         }, "-")
 
-        if package:config("lto") then
+        if is_lto then
             archive_name = "-lto"
         end
 
