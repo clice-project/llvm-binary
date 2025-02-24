@@ -18,7 +18,7 @@ local sparse_checkout_list = {
 
 if is_mode("debug") then
     table.insert(sparse_checkout_list, "runtimes")
-    table.insert(sparse_checkout_list, "clang-tools-extra")
+    table.insert(sparse_checkout_list, "compiler-rt")
 end
 
 package("llvm")
@@ -31,10 +31,14 @@ package("llvm")
         add_configs("debug", {description = "Enable debug symbols.", default = false, type = "boolean", readonly = true})
     end
 
-    add_deps("cmake", "ninja", "python 3.x", {kind = "binary"})
-
     if is_plat("windows", "mingw") then
         add_syslinks("version", "ntdll")
+    end
+
+    add_deps("cmake", "ninja", "python 3.x", {kind = "binary"})
+
+    if is_host("windows") then
+        set_policy("platform.longpaths", true)
     end
 
     on_install(function (package)
