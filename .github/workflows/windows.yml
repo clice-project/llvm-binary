@@ -3,6 +3,9 @@ name: windows
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
   build:
     runs-on: windows-latest
@@ -17,11 +20,11 @@ jobs:
             lto: "y"
 
     steps:
-      - name: Setup llvm
-        uses: MinoruSekine/setup-scoop@v4.0.1
-        with:
-          buckets: main
-          apps: llvm
+      # - name: Setup llvm
+      #   uses: MinoruSekine/setup-scoop@v4.0.1
+      #   with:
+      #     buckets: main
+      #     apps: llvm
 
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,10 +37,13 @@ jobs:
 
       - name: Package
         run: |
-          xmake config --yes --verbose --runtimes=${{ matrix.runtimes }} --lto=${{ matrix.lto }}
+          xmake config --yes --verbose --runtimes=${{ matrix.runtimes }} --policies=build.optimization.lto:${{ matrix.lto }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build/package/*
-          path: artifacts/windows/
+          name: windows-${{ matrix.build_type }}-${{ matrix.runtimes }}-lto_${{ matrix.lto }}
+          path: build/package/*
+          compression-level: 0
+          if-no-files-found: error
+
