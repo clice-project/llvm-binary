@@ -69,11 +69,15 @@ package("llvm")
         table.insert(configs, "-DLLVM_USE_SANITIZER=" .. (package:is_debug() and "Address" or ""))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         table.insert(configs, "-DLLVM_ENABLE_LTO=" .. (package:config("lto") and "ON" or "OFF"))
+        if package:config("lto") then
+            table.insert(configs, "-DLLVM_PARALLEL_LINK_JOBS=2")
+            if package:is_plat("linux") then
+                table.insert(configs, "-DLLVM_USE_LINKER=lld")
+            end
+        end
         if package:is_plat("windows") then
             table.insert(configs, "-DCMAKE_C_COMPILER=clang-cl")
             table.insert(configs, "-DCMAKE_CXX_COMPILER=clang-cl")
-        elseif package:is_plat("linux") then
-            table.insert(configs, "-DLLVM_USE_LINKER=lld")
         end
         if package:is_debug() then
             table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra")
@@ -167,5 +171,4 @@ package("llvm")
 
         local checksum = hash.sha256(archive_file)
         print(checksum)
-        io.writefile("build/package/" .. archive_name .. ".txt", checksum)
     end)

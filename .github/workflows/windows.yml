@@ -42,8 +42,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: windows-${{ matrix.build_type }}-${{ matrix.runtimes }}-lto_${{ matrix.lto }}
+          name: windows-${{ matrix.build_type }}-${{ matrix.runtimes }}-lto_${{ matrix.lto }}.7z
           path: build/package/*
           compression-level: 0
           if-no-files-found: error
-
