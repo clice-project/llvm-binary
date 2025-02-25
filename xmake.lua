@@ -45,6 +45,29 @@ package("llvm")
             package:add("defines", "CLANG_BUILD_STATIC")
         end
 
+        io.replace("clang/CMakeLists.txt", "add_subdirectory(tools)",
+            "add_llvm_external_project(clang-tools-extra extra)\nadd_clang_subdirectory(libclang)", {plain = true})
+
+        local clang_tools = {
+            "clang-apply-replacements",
+            "clang-reorder-fields",
+            -- "modularize",
+            "clang-tidy",
+            "clang-change-namespace",
+            "clang-doc",
+            "clang-include-fixer",
+            "clang-move",
+            "clang-query",
+            "include-cleaner",
+            -- "pp-trace",
+            "tool-template",
+        }
+        for _, tool in ipairs(clang_tools) do
+            io.replace(format("clang-tools-extra/%s/CMakeLists.txt", tool), "add_subdirectory(tool)", "", {plain = true})
+        end
+        io.replace("clang-tools-extra/CMakeLists.txt", "add_subdirectory(modularize)", "", {plain = true})
+        io.replace("clang-tools-extra/CMakeLists.txt", "add_subdirectory(pp-trace)", "", {plain = true})
+
         local configs = {
             "-DLLVM_INCLUDE_DOCS=OFF",
             "-DLLVM_INCLUDE_TESTS=OFF",
@@ -54,6 +77,7 @@ package("llvm")
             -- "-DCLANG_BUILD_TOOLS=OFF",
             "-DLLVM_BUILD_TOOLS=OFF",
             "-DLLVM_BUILD_UTILS=OFF",
+            "-DCLANG_ENABLE_CLANGD=OFF",
 
             "-DLLVM_ENABLE_ZLIB=OFF",
             "-DLLVM_ENABLE_ZSTD=OFF",
@@ -70,7 +94,6 @@ package("llvm")
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         table.insert(configs, "-DLLVM_ENABLE_LTO=" .. (package:config("lto") and "ON" or "OFF"))
         if package:config("lto") then
-            table.insert(configs, "-DLLVM_PARALLEL_LINK_JOBS=2")
             if package:is_plat("linux") then
                 table.insert(configs, "-DLLVM_USE_LINKER=lld")
             end
