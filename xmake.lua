@@ -14,7 +14,7 @@ local sparse_checkout_list = {
     "clang",
     "clang-tools-extra",
 }
-
+-- Enable asan
 if is_mode("debug") then
     table.insert(sparse_checkout_list, "runtimes")
     table.insert(sparse_checkout_list, "compiler-rt")
@@ -72,6 +72,8 @@ package("llvm")
         if package:is_plat("windows") then
             table.insert(configs, "-DCMAKE_C_COMPILER=clang-cl")
             table.insert(configs, "-DCMAKE_CXX_COMPILER=clang-cl")
+        elseif package:is_plat("linux") then
+            table.insert(configs, "-DLLVM_USE_LINKER=lld")
         end
         if package:is_debug() then
             table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra")
