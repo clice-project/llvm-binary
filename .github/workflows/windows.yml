@@ -19,6 +19,10 @@ jobs:
             runtimes: MT
             lto: "y"
 
+    concurrency:
+      group: ${{ github.ref }}-${{ github.base_ref }}-${{ github.head_ref }}-windows-${{ matrix.build_type }}-${{ matrix.runtimes }}-${{ matrix.lto }}
+      cancel-in-progress: true
+
     steps:
       # - name: Setup llvm
       #   uses: MinoruSekine/setup-scoop@v4.0.1

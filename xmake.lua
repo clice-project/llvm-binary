@@ -1,5 +1,3 @@
-set_policy("compatibility.version", "3.0")
-
 add_requires("llvm", {
     system = false,
     configs = {
@@ -21,9 +19,10 @@ if is_mode("debug") then
 end
 
 package("llvm")
-    -- Use tarball when llvm 20 release
-    set_urls("https://github.com/llvm/llvm-project.git", {includes = sparse_checkout_list})
+    set_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-$(version)/llvm-project-$(version).src.tar.xz",
+             "https://github.com/llvm/llvm-project.git", {includes = sparse_checkout_list})
 
+    add_versions("20.1.2", "f0a4a240aabc9b056142d14d5478bb6d962aeac549cbd75b809f5499240a8b38")
     add_versions("20.0.0", "fac46469977da9c4e9c6eeaac21103c971190577") -- 2025.01.04
 
     if is_plat("windows") then
