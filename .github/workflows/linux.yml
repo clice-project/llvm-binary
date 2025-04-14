@@ -20,7 +20,7 @@ jobs:
             lto: "y"
 
     concurrency:
-      group: ${{ github.ref }}-${{ github.base_ref }}-${{ github.head_ref }}-linux-${{ matrix.build_type }}-${{ matrix.runtimes }}
+      group: ${{ github.ref }}-${{ github.base_ref }}-${{ github.head_ref }}-linux-${{ matrix.build_type }}-${{ matrix.lto }}
       cancel-in-progress: true
 
     steps:
