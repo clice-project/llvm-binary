@@ -1,6 +1,11 @@
 name: macos
 
 on:
+<<<<<<< HEAD
+=======
+  push:
+    branches: [ main ]
+>>>>>>> 5da26c2 (Add macos build process)
   pull_request:
     branches: [ main ]
 
@@ -17,10 +22,13 @@ jobs:
           - build_type: release
             lto: "y"
 
+<<<<<<< HEAD
     concurrency:
       group: ${{ github.ref }}-${{ github.base_ref }}-${{ github.head_ref }}-macos-${{ matrix.build_type }}-${{ matrix.lto }}
       cancel-in-progress: true
 
+=======
+>>>>>>> 5da26c2 (Add macos build process)
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,7 +36,11 @@ jobs:
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
+<<<<<<< HEAD
           xmake-version: '2.9.9'
+=======
+          xmake-version: branch@master
+>>>>>>> 5da26c2 (Add macos build process)
           actions-cache-folder: '.xmake-cache'
 
       - name: Package
@@ -38,7 +50,11 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
+<<<<<<< HEAD
           name: macos-${{ matrix.build_type }}-lto_${{ matrix.lto }}.tar.xz
+=======
+          name: linux-${{ matrix.build_type }}-lto_${{ matrix.lto }}.tar.xz
+>>>>>>> 5da26c2 (Add macos build process)
           path: build/package/*
           compression-level: 0
           if-no-files-found: error
