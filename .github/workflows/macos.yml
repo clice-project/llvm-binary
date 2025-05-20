@@ -1,0 +1,42 @@
+name: macos
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: macos-15
+    strategy:
+      matrix:
+        include:
+          - build_type: debug
+            lto: "n"
+          - build_type: release
+            lto: "n"
+          - build_type: release
+            lto: "y"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: branch@master
+          actions-cache-folder: '.xmake-cache'
+
+      - name: Package
+        run: |
+          xmake config --yes --verbose --toolchain=clang --mode=${{ matrix.build_type }} --policies=build.optimization.lto:${{ matrix.lto }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ matrix.build_type }}-lto_${{ matrix.lto }}.tar.xz
+          path: build/package/*
+          compression-level: 0
+          if-no-files-found: error
