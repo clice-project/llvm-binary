@@ -17,6 +17,10 @@ jobs:
             runtimes: MT
             lto: "y"
 
+    concurrency:
+      group: ${{ github.ref }}-${{ github.base_ref }}-${{ github.head_ref }}-windows-${{ matrix.build_type }}-${{ matrix.lto }}
+      cancel-in-progress: true
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
