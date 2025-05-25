@@ -90,7 +90,6 @@ package("llvm")
             "-DLLVM_TARGETS_TO_BUILD=X86",
         }
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
-        table.insert(configs, "-DLLVM_USE_SANITIZER=" .. (package:is_debug() and "Address" or ""))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         table.insert(configs, "-DLLVM_ENABLE_LTO=" .. (package:config("lto") and "ON" or "OFF"))
         if package:config("lto") then
@@ -105,6 +104,7 @@ package("llvm")
         if package:is_debug() then
             table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra")
             table.insert(configs, "-DLLVM_ENABLE_RUNTIMES=compiler-rt")
+            table.insert(configs, "-DLLVM_USE_SANITIZER=Address")
         else
             table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra")
         end
@@ -159,6 +159,9 @@ package("llvm")
             format = ".7z"
         elseif package:is_plat("linux") then
             abi = "gnu"
+            format = ".tar.xz"
+        elseif package:is_plat("macosx") then
+            abi = "apple"
             format = ".tar.xz"
         end
         -- arch-plat-abi-mode
