@@ -104,7 +104,7 @@ package("llvm")
         if package:is_debug() then
             table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra")
             table.insert(configs, "-DLLVM_ENABLE_RUNTIMES=compiler-rt")
-            table.insert(configs, "-DLLVM_USE_SANITIZER=" .. "Address")
+            table.insert(configs, "-DLLVM_USE_SANITIZER=Address")
         else
             table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra")
         end
@@ -162,7 +162,7 @@ package("llvm")
             format = ".tar.xz"
         elseif package:is_plat("macosx") then
             abi = "apple"
-            format = ".tar.gz"
+            format = ".tar.xz"
         end
         -- arch-plat-abi-mode
         local archive_name = table.concat({
