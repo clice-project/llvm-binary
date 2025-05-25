@@ -1,0 +1,26 @@
+name: release
+permissions: write-all
+
+on:
+  push:
+    tags: [ "*" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup xmake
+        uses: xmake-io/github-action-setup-xmake@v1
+        with:
+          xmake-version: '2.9.9'
+          actions-cache-folder: '.xmake-cache'
+
+      - name: Upload binaries
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          xmake lua release.lua
