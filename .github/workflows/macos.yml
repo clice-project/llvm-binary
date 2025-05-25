@@ -1,8 +1,6 @@
 name: macos
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -26,7 +24,7 @@ jobs:
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: branch@master
+          xmake-version: '2.9.9'
           actions-cache-folder: '.xmake-cache'
 
       - name: Package
