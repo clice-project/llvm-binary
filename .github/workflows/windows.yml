@@ -1,14 +1,12 @@
 name: windows
 
 on:
-  push:
-    branches: [ main ]
   pull_request:
     branches: [ main ]
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2025
     strategy:
       matrix:
         include:
@@ -20,19 +18,13 @@ jobs:
             lto: "y"
 
     steps:
-      # - name: Setup llvm
-      #   uses: MinoruSekine/setup-scoop@v4.0.1
-      #   with:
-      #     buckets: main
-      #     apps: llvm
-
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup xmake
         uses: xmake-io/github-action-setup-xmake@v1
         with:
-          xmake-version: branch@master
+          xmake-version: '2.9.9'
           actions-cache-folder: '.xmake-cache'
 
       - name: Package
