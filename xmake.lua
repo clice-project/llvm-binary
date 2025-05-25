@@ -21,10 +21,10 @@ if is_mode("debug") then
 end
 
 package("llvm")
-    -- Use tarball when llvm 20 release
-    set_urls("https://github.com/llvm/llvm-project.git", {includes = sparse_checkout_list})
+    set_urls("https://github.com/llvm/llvm-project/releases/download/llvmorg-$(version)/llvm-project-$(version).src.tar.xz",
+             "https://github.com/llvm/llvm-project.git", {includes = sparse_checkout_list})
 
-    add_versions("20.0.0", "fac46469977da9c4e9c6eeaac21103c971190577") -- 2025.01.04
+    add_versions("20.1.5", "a069565cd1c6aee48ee0f36de300635b5781f355d7b3c96a28062d50d575fa3e")
 
     if is_plat("windows") then
         add_configs("debug", {description = "Enable debug symbols.", default = false, type = "boolean", readonly = true})
