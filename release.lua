@@ -27,13 +27,15 @@ function main()
     local dir = path.join(os.scriptdir(), "artifacts", current_commit)
     os.mkdir(dir)
 
-    -- Get latest workflow id (linux & windows & macos)
-    local result = json.decode(os.iorunv("gh run list --json databaseId --limit 3"))
-    for _, v in pairs(result) do
-        -- float -> int
-        local run_id = format("%d", v["databaseId"])
-        -- download all artifacts
-        os.execv("gh", {"run", "download", run_id, "--dir", dir}, {envs = envs})
+    -- Get latest workflow id
+    for _, workflow in ipairs({"linux", "windows", "macos"}) do
+        local result = json.decode(os.iorunv(format("gh run list --json databaseId --limit 1 --workflow=%s.yml", workflow)))
+        for _, json in pairs(result) do
+            -- float -> int
+            local run_id = format("%d", json["databaseId"])
+            -- download all artifacts
+            os.execv("gh", {"run", "download", run_id, "--dir", dir}, {envs = envs})
+        end
     end
 
     local binaries = {}
