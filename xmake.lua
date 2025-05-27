@@ -92,7 +92,7 @@ package("llvm")
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         table.insert(configs, "-DLLVM_ENABLE_LTO=" .. (package:config("lto") and "ON" or "OFF"))
         if package:config("lto") then
-            if package:is_plat("linux") or package:is_plat("macosx") then
+            if package:is_plat("linux") then
                 table.insert(configs, "-DLLVM_USE_LINKER=lld")
             end
         end
