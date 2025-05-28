@@ -87,7 +87,6 @@ package("llvm")
             "-DLLVM_ENABLE_RTTI=OFF",
 
             -- "-DLLVM_ENABLE_PROJECTS=clang",
-            "-DLLVM_TARGETS_TO_BUILD=X86",
         }
         table.insert(configs, "-DCMAKE_BUILD_TYPE=" .. (package:is_debug() and "Debug" or "Release"))
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
@@ -107,6 +106,13 @@ package("llvm")
             table.insert(configs, "-DLLVM_USE_SANITIZER=Address")
         else
             table.insert(configs, "-DLLVM_ENABLE_PROJECTS=clang;clang-tools-extra")
+        end
+
+        if package:is_plat("macosx") then
+            table.insert(configs, "-DLLVM_TARGETS_TO_BUILD=AArch64")
+            table.insert(configs, "-DCMAKE_OSX_ARCHITECTURES=arm64")
+        else
+            table.insert(configs, "-DLLVM_TARGETS_TO_BUILD=X86")
         end
 
         local opt = {}
@@ -186,7 +192,7 @@ package("llvm")
         local archive_dirs
         if package:is_plat("windows") then
             archive_dirs = "*"
-        elseif package:is_plat("linux") then
+        elseif package:is_plat("linux") or package:is_plat("macosx") then
             -- workaround for tar
             archive_dirs = {}
             for _, dir in ipairs(os.dirs(path.join(opt.curdir, "*"))) do
