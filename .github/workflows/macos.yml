@@ -22,17 +22,36 @@ jobs:
       cancel-in-progress: true
 
     steps:
+      - name: Setup llvm
+        run: |
+          brew install llvm@20
+
+      - name: Install lld
+        run: |
+          brew install lld@20
+
+      - name: Setup python
+        run: |
+          # avoid compile python
+          brew install python@3.13
+          brew install python-setuptools
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup xmake
-        uses: xmake-io/github-action-setup-xmake@v1
-        with:
-          xmake-version: '2.9.9'
-          actions-cache-folder: '.xmake-cache'
+        run: |
+          brew install xmake
+
+      # - name: Setup xmake
+      #   uses: xmake-io/github-action-setup-xmake@v1
+      #   with:
+      #     xmake-version: '2.9.9'
+      #     actions-cache-folder: '.xmake-cache'
 
       - name: Package
         run: |
+          export PATH="/opt/homebrew/opt/llvm@20/bin:/opt/homebrew/opt/lld@20/bin:$PATH"
           xmake config --yes --verbose --toolchain=clang --mode=${{ matrix.build_type }} --policies=build.optimization.lto:${{ matrix.lto }}
 
       - name: Upload artifacts

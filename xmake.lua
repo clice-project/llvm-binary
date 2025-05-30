@@ -92,7 +92,7 @@ package("llvm")
         table.insert(configs, "-DBUILD_SHARED_LIBS=" .. (package:config("shared") and "ON" or "OFF"))
         table.insert(configs, "-DLLVM_ENABLE_LTO=" .. (package:config("lto") and "ON" or "OFF"))
         if package:config("lto") then
-            if package:is_plat("linux") then
+            if package:is_plat("linux", "macosx") then
                 table.insert(configs, "-DLLVM_USE_LINKER=lld")
             end
         end
@@ -111,6 +111,7 @@ package("llvm")
         if package:is_plat("macosx") then
             table.insert(configs, "-DLLVM_TARGETS_TO_BUILD=AArch64")
             table.insert(configs, "-DCMAKE_OSX_ARCHITECTURES=arm64")
+            table.insert(configs, "-DCMAKE_LIBTOOL=/opt/homebrew/opt/llvm@20/bin/llvm-libtool-darwin")
         else
             table.insert(configs, "-DLLVM_TARGETS_TO_BUILD=X86")
         end
@@ -192,7 +193,7 @@ package("llvm")
         local archive_dirs
         if package:is_plat("windows") then
             archive_dirs = "*"
-        elseif package:is_plat("linux") or package:is_plat("macosx") then
+        elseif package:is_plat("linux", "macosx") then
             -- workaround for tar
             archive_dirs = {}
             for _, dir in ipairs(os.dirs(path.join(opt.curdir, "*"))) do
